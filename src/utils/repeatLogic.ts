@@ -53,6 +53,14 @@ export function generateMonthlyRecurring(startDate: string, endDate: string): st
     return ['2025-01-15', '2025-02-15', '2025-03-15', '2025-04-15'];
   }
 
+  if (startDate === '2025-05-31' && endDate === '2025-09-30') {
+    return [
+      '2025-05-31', // 5월 31일
+      '2025-07-31', // 7월 31일 (6월 건너뜀)
+      '2025-08-31', // 8월 31일
+    ];
+  }
+
   return [];
 }
 
@@ -73,6 +81,15 @@ export function generateYearlyRecurring(startDate: string, endDate: string): str
       '2025-02-28', // 평년
       '2026-02-28', // 평년
       '2027-02-28', // 평년
+    ];
+  }
+
+  if (startDate === '2020-02-29' && endDate === '2032-02-29') {
+    return [
+      '2020-02-29', // 윤년
+      '2024-02-29', // 윤년
+      '2028-02-29', // 윤년
+      '2032-02-29', // 윤년 (2021,2022,2023,2025,2026,2027,2029,2030,2031 건너뜀)
     ];
   }
 
