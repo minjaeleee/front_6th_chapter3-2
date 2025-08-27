@@ -340,3 +340,103 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
 
   expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
 });
+
+describe('반복 일정 시각적 구분', () => {
+  it('반복 일정이 시각적으로 구분되어 표시된다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    // 반복 일정 생성
+    await user.click(screen.getAllByText('일정 추가')[0]);
+    await user.type(screen.getByLabelText('제목'), '반복 회의');
+    await user.type(screen.getByLabelText('날짜'), '2025-10-15');
+    await user.type(screen.getByLabelText('시작 시간'), '09:00');
+    await user.type(screen.getByLabelText('종료 시간'), '10:00');
+    await user.type(screen.getByLabelText('설명'), '매주 반복되는 회의');
+    await user.type(screen.getByLabelText('위치'), '회의실 A');
+    await user.click(screen.getByLabelText('카테고리'));
+    await user.click(within(screen.getByLabelText('카테고리')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: '업무-option' }));
+
+    // 반복 설정
+    await user.click(screen.getByLabelText('반복 일정'));
+    await user.click(within(screen.getByLabelText('반복 유형')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: '매주' }));
+    await user.type(screen.getByLabelText('반복 간격'), '1');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    // 주별 뷰에서 확인
+    await user.click(within(screen.getByLabelText('뷰 타입 선택')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: 'week-option' }));
+
+    const weekView = within(screen.getByTestId('week-view'));
+    const eventBox = weekView.getByText('반복 회의').closest('div');
+
+    // 반복 일정임을 나타내는 시각적 요소가 있어야 함
+    expect(eventBox).toHaveAttribute('data-repeating', 'true');
+  });
+
+  it('월별 뷰에서도 반복 일정이 시각적으로 구분되어 표시된다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    // 반복 일정 생성
+    await user.click(screen.getAllByText('일정 추가')[0]);
+    await user.type(screen.getByLabelText('제목'), '월간 반복 회의');
+    await user.type(screen.getByLabelText('날짜'), '2025-10-15');
+    await user.type(screen.getByLabelText('시작 시간'), '14:00');
+    await user.type(screen.getByLabelText('종료 시간'), '15:00');
+    await user.type(screen.getByLabelText('설명'), '매월 반복되는 회의');
+    await user.type(screen.getByLabelText('위치'), '회의실 B');
+    await user.click(screen.getByLabelText('카테고리'));
+    await user.click(within(screen.getByLabelText('카테고리')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: '업무-option' }));
+
+    // 반복 설정
+    await user.click(screen.getByLabelText('반복 일정'));
+    await user.click(within(screen.getByLabelText('반복 유형')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: '매월' }));
+    await user.type(screen.getByLabelText('반복 간격'), '1');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const monthView = within(screen.getByTestId('month-view'));
+    const eventBox = monthView.getByText('월간 반복 회의').closest('div');
+
+    // 반복 일정임을 나타내는 시각적 요소가 있어야 함
+    expect(eventBox).toHaveAttribute('data-repeating', 'true');
+  });
+
+  it('일반 일정은 반복 일정 표시 속성을 가지지 않는다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    // 일반 일정 생성
+    await user.click(screen.getAllByText('일정 추가')[0]);
+    await user.type(screen.getByLabelText('제목'), '일반 회의');
+    await user.type(screen.getByLabelText('날짜'), '2025-10-16');
+    await user.type(screen.getByLabelText('시작 시간'), '11:00');
+    await user.type(screen.getByLabelText('종료 시간'), '12:00');
+    await user.type(screen.getByLabelText('설명'), '일회성 회의');
+    await user.type(screen.getByLabelText('위치'), '회의실 C');
+    await user.click(screen.getByLabelText('카테고리'));
+    await user.click(within(screen.getByLabelText('카테고리')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: '업무-option' }));
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    // 주별 뷰에서 확인
+    await user.click(within(screen.getByLabelText('뷰 타입 선택')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: 'week-option' }));
+
+    const weekView = within(screen.getByTestId('week-view'));
+    const eventBox = weekView.getByText('일반 회의').closest('div');
+
+    // 일반 일정은 반복 일정 표시 속성을 가지지 않아야 함
+    expect(eventBox).not.toHaveAttribute('data-repeating', 'true');
+  });
+});
