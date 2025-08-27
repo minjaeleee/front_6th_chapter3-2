@@ -361,7 +361,11 @@ describe('반복 일정 시각적 구분', () => {
 
     // 반복 설정
     await user.click(screen.getByLabelText('반복 일정'));
-    await user.click(within(screen.getByLabelText('반복 유형')).getByRole('combobox'));
+    
+    // 반복 필드가 나타날 때까지 기다림
+    await screen.findByLabelText('반복 유형', {}, { timeout: 3000 });
+    
+    await user.click(screen.getByLabelText('반복 유형'));
     await user.click(screen.getByRole('option', { name: '매주' }));
     await user.type(screen.getByLabelText('반복 간격'), '1');
 
@@ -397,7 +401,11 @@ describe('반복 일정 시각적 구분', () => {
 
     // 반복 설정
     await user.click(screen.getByLabelText('반복 일정'));
-    await user.click(within(screen.getByLabelText('반복 유형')).getByRole('combobox'));
+    
+    // 반복 필드가 나타날 때까지 기다림
+    await screen.findByLabelText('반복 유형', {}, { timeout: 3000 });
+    
+    await user.click(screen.getByLabelText('반복 유형'));
     await user.click(screen.getByRole('option', { name: '매월' }));
     await user.type(screen.getByLabelText('반복 간격'), '1');
 
