@@ -1,97 +1,107 @@
-export function generateDailyRecurring(startDate: string, endDate: string): string[] {
-  if (startDate === '2025-01-15' && endDate === '2025-01-18') {
-    return ['2025-01-15', '2025-01-16', '2025-01-17', '2025-01-18'];
+export function generateRecurringEvents(
+  startDate: string,
+  repeatType: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly',
+  interval: number,
+  repeatEndDate?: string
+): string[] {
+  // none 타입인 경우 원본 이벤트만 반환
+  if (repeatType === 'none') {
+    return [startDate];
   }
 
-  if (startDate === '2025-01-30' && endDate === '2025-02-02') {
-    return ['2025-01-30', '2025-01-31', '2025-02-01', '2025-02-02'];
+  // 반복 종료일이 시작일보다 이전인 경우 시작일만 반환
+  if (repeatEndDate && new Date(repeatEndDate) < new Date(startDate)) {
+    return [startDate];
   }
 
-  return [];
-}
+  const dates: string[] = [startDate];
+  const start = new Date(startDate);
+  const end = repeatEndDate ? new Date(repeatEndDate) : new Date(startDate);
 
-export function generateWeeklyRecurring(startDate: string, endDate: string): string[] {
-  if (startDate === '2025-01-06' && endDate === '2025-01-27') {
-    return [
-      '2025-01-06', // 월요일
-      '2025-01-13', // 월요일
-      '2025-01-20', // 월요일
-      '2025-01-27', // 월요일
-    ];
+  // endDate가 startDate보다 이전이면 시작일만 반환
+  if (end < start) {
+    return [startDate];
   }
 
-  if (startDate === '2025-01-27' && endDate === '2025-02-17') {
-    return [
-      '2025-01-27', // 월요일 (1월)
-      '2025-02-03', // 월요일 (2월)
-      '2025-02-10', // 월요일 (2월)
-      '2025-02-17', // 월요일 (2월)
-    ];
+  let currentDate = new Date(start);
+
+  switch (repeatType) {
+    case 'daily':
+      while (true) {
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(nextDate.getDate() + interval);
+        // date를 기준으로 월을 넘어갔는지 체크
+        if (nextDate > end) break;
+        dates.push(nextDate.toISOString().split('T')[0]);
+        currentDate = nextDate;
+      }
+      break;
+
+    case 'weekly':
+      while (true) {
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(nextDate.getDate() + 7 * interval);
+        if (nextDate > end) break;
+        dates.push(nextDate.toISOString().split('T')[0]);
+        currentDate = nextDate;
+      }
+      break;
+
+    case 'monthly':
+      while (true) {
+        // 다음 달로 이동
+        const nextMonth = new Date(currentDate);
+        nextMonth.setMonth(nextMonth.getMonth() + interval);
+
+        // 31일 특수 케이스 처리
+        if (start.getDate() === 31) {
+          // 해당 월의 마지막 날짜를 구함
+          const lastDayOfMonth = new Date(
+            nextMonth.getFullYear(),
+            nextMonth.getMonth() + 1,
+            0
+          ).getDate();
+          if (lastDayOfMonth < 31) {
+            // 31일이 없는 달이면 건너뛰기
+            currentDate = nextMonth;
+            continue;
+          }
+          // 31일이 있는 달이면 31일로 설정
+          nextMonth.setDate(31);
+        }
+
+        if (nextMonth > end) break;
+        dates.push(nextMonth.toISOString().split('T')[0]);
+        currentDate = nextMonth;
+      }
+      break;
+
+    case 'yearly':
+      while (true) {
+        const nextYear = new Date(currentDate);
+        nextYear.setFullYear(nextYear.getFullYear() + interval);
+
+        // 윤년 2월 29일 특수 케이스 처리
+        if (start.getDate() === 29 && start.getMonth() === 1) {
+          const isLeapYear = (year: number) =>
+            (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
+          if (!isLeapYear(nextYear.getFullYear())) {
+            // 평년이면 건너뛰기 - 다음 해로 계속 진행
+            currentDate = nextYear;
+            continue;
+          }
+          // 윤년이면 정확한 2월 29일로 설정
+          nextYear.setMonth(1);
+          nextYear.setDate(29);
+        }
+
+        if (nextYear > end) break;
+        dates.push(nextYear.toISOString().split('T')[0]);
+        currentDate = nextYear;
+      }
+      break;
   }
 
-  return [];
-}
-
-export function generateMonthlyRecurring(startDate: string, endDate: string): string[] {
-  if (startDate === '2025-01-31' && endDate === '2025-05-31') {
-    return [
-      '2025-01-31', // 1월 31일
-      '2025-03-31', // 3월 31일 (2월 건너뜀)
-      '2025-05-31', // 5월 31일 (4월 건너뜀)
-    ];
-  }
-
-  if (startDate === '2025-01-30' && endDate === '2025-04-30') {
-    return [
-      '2025-01-30', // 1월 30일
-      '2025-03-30', // 3월 30일 (2월 건너뜀)
-      '2025-04-30', // 4월 30일
-    ];
-  }
-
-  if (startDate === '2025-01-15' && endDate === '2025-04-15') {
-    return ['2025-01-15', '2025-02-15', '2025-03-15', '2025-04-15'];
-  }
-
-  if (startDate === '2025-05-31' && endDate === '2025-09-30') {
-    return [
-      '2025-05-31', // 5월 31일
-      '2025-07-31', // 7월 31일 (6월 건너뜀)
-      '2025-08-31', // 8월 31일
-    ];
-  }
-
-  return [];
-}
-
-export function generateYearlyRecurring(startDate: string, endDate: string): string[] {
-  if (startDate === '2024-02-29' && endDate === '2028-02-29') {
-    return [
-      '2024-02-29', // 윤년
-      '2028-02-29', // 다음 윤년 (2025,2026,2027 건너뜀)
-    ];
-  }
-
-  if (startDate === '2024-01-15' && endDate === '2026-01-15') {
-    return ['2024-01-15', '2025-01-15', '2026-01-15'];
-  }
-
-  if (startDate === '2025-02-28' && endDate === '2027-02-28') {
-    return [
-      '2025-02-28', // 평년
-      '2026-02-28', // 평년
-      '2027-02-28', // 평년
-    ];
-  }
-
-  if (startDate === '2020-02-29' && endDate === '2032-02-29') {
-    return [
-      '2020-02-29', // 윤년
-      '2024-02-29', // 윤년
-      '2028-02-29', // 윤년
-      '2032-02-29', // 윤년 (2021,2022,2023,2025,2026,2027,2029,2030,2031 건너뜀)
-    ];
-  }
-
-  return [];
+  return dates;
 }

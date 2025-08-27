@@ -1,8 +1,10 @@
+import { generateRecurringEvents } from '../../utils/repeatLogic';
+
 describe('반복 일정 생성', () => {
   describe('none 타입', () => {
     it('원본 이벤트만 반환한다', () => {
       const startDate = '2025-01-15';
-      const repeatType = 'none' as const;
+      const repeatType = 'none';
       const interval = 1;
 
       const result = generateRecurringEvents(startDate, repeatType, interval);
@@ -14,7 +16,7 @@ describe('반복 일정 생성', () => {
   describe('daily 타입', () => {
     it('매일 반복되는 일정을 생성한다', () => {
       const startDate = '2025-01-15';
-      const repeatType = 'daily' as const;
+      const repeatType = 'daily';
       const interval = 1;
       const repeatEndDate = '2025-01-18';
 
@@ -25,7 +27,7 @@ describe('반복 일정 생성', () => {
 
     it('간격을 적용하여 반복한다', () => {
       const startDate = '2025-01-15';
-      const repeatType = 'daily' as const;
+      const repeatType = 'daily';
       const interval = 2; // 2일마다
       const repeatEndDate = '2025-01-25';
 
@@ -43,7 +45,7 @@ describe('반복 일정 생성', () => {
 
     it('월말에서 다음 달로 넘어간다', () => {
       const startDate = '2025-01-30';
-      const repeatType = 'daily' as const;
+      const repeatType = 'daily';
       const interval = 1;
       const repeatEndDate = '2025-02-02';
 
@@ -57,7 +59,7 @@ describe('반복 일정 생성', () => {
     it('매주 같은 요일에 반복한다', () => {
       // 2025-01-06은 월요일
       const startDate = '2025-01-06';
-      const repeatType = 'weekly' as const;
+      const repeatType = 'weekly';
       const interval = 1;
       const repeatEndDate = '2025-01-27';
 
@@ -73,7 +75,7 @@ describe('반복 일정 생성', () => {
 
     it('간격을 적용하여 반복한다', () => {
       const startDate = '2025-01-06';
-      const repeatType = 'weekly' as const;
+      const repeatType = 'weekly';
       const interval = 2; // 2주마다
       const repeatEndDate = '2025-02-17';
 
@@ -91,7 +93,7 @@ describe('반복 일정 생성', () => {
   describe('monthly 타입', () => {
     it('매월 같은 날짜에 반복한다', () => {
       const startDate = '2025-01-15';
-      const repeatType = 'monthly' as const;
+      const repeatType = 'monthly';
       const interval = 1;
       const repeatEndDate = '2025-04-15';
 
@@ -102,7 +104,7 @@ describe('반복 일정 생성', () => {
 
     it('31일 매월 반복 시 31일 없는 달은 건너뛴다', () => {
       const startDate = '2025-01-31';
-      const repeatType = 'monthly' as const;
+      const repeatType = 'monthly';
       const interval = 1;
       const repeatEndDate = '2025-05-31';
 
@@ -117,7 +119,7 @@ describe('반복 일정 생성', () => {
 
     it('간격을 적용하여 반복한다', () => {
       const startDate = '2025-01-15';
-      const repeatType = 'monthly' as const;
+      const repeatType = 'monthly';
       const interval = 2; // 2개월마다
       const repeatEndDate = '2025-07-15';
 
@@ -130,7 +132,7 @@ describe('반복 일정 생성', () => {
   describe('yearly 타입', () => {
     it('매년 같은 날짜에 반복한다', () => {
       const startDate = '2024-01-15';
-      const repeatType = 'yearly' as const;
+      const repeatType = 'yearly';
       const interval = 1;
       const repeatEndDate = '2026-01-15';
 
@@ -141,9 +143,9 @@ describe('반복 일정 생성', () => {
 
     it('윤년 2월 29일 반복 시 평년은 건너뛴다', () => {
       const startDate = '2024-02-29';
-      const repeatType = 'yearly' as const;
+      const repeatType = 'yearly';
       const interval = 1;
-      const repeatEndDate = '2028-02-29';
+      const repeatEndDate = '2029-02-29';
 
       const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
@@ -155,7 +157,7 @@ describe('반복 일정 생성', () => {
 
     it('간격을 적용하여 반복한다', () => {
       const startDate = '2024-01-15';
-      const repeatType = 'yearly' as const;
+      const repeatType = 'yearly';
       const interval = 2; // 2년마다
       const repeatEndDate = '2030-01-15';
 
@@ -168,7 +170,7 @@ describe('반복 일정 생성', () => {
   describe('반복 종료일 처리', () => {
     it('반복 종료일이 설정된 경우 해당 날짜까지만 반복한다', () => {
       const startDate = '2025-01-15';
-      const repeatType = 'monthly' as const;
+      const repeatType = 'monthly';
       const interval = 1;
       const repeatEndDate = '2025-06-15';
 
@@ -186,7 +188,7 @@ describe('반복 일정 생성', () => {
 
     it('반복 종료일이 시작일보다 이전인 경우 시작일만 반환한다', () => {
       const startDate = '2025-01-15';
-      const repeatType = 'monthly' as const;
+      const repeatType = 'monthly';
       const interval = 1;
       const repeatEndDate = '2024-12-31';
 
