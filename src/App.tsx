@@ -183,23 +183,44 @@ function App() {
                       )
                       .map((event) => {
                         const isNotified = notifiedEvents.includes(event.id);
+                        const isRepeating = event.repeat.type !== 'none';
                         return (
                           <Box
                             key={event.id}
+                            data-repeating={isRepeating}
                             sx={{
                               p: 0.5,
                               my: 0.5,
-                              backgroundColor: isNotified ? '#ffebee' : '#f5f5f5',
+                              backgroundColor: isNotified
+                                ? '#ffebee'
+                                : isRepeating
+                                ? '#e3f2fd'
+                                : '#f5f5f5',
                               borderRadius: 1,
                               fontWeight: isNotified ? 'bold' : 'normal',
                               color: isNotified ? '#d32f2f' : 'inherit',
                               minHeight: '18px',
                               width: '100%',
                               overflow: 'hidden',
+                              borderLeft: isRepeating ? '4px solid #1976d2' : 'none',
+                              position: 'relative',
                             }}
                           >
                             <Stack direction="row" spacing={1} alignItems="center">
                               {isNotified && <Notifications fontSize="small" />}
+                              {isRepeating && (
+                                <Box
+                                  component="span"
+                                  sx={{
+                                    width: '8px',
+                                    height: '8px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#1976d2',
+                                    display: 'inline-block',
+                                    marginRight: '4px',
+                                  }}
+                                />
+                              )}
                               <Typography
                                 variant="caption"
                                 noWrap
@@ -270,23 +291,44 @@ function App() {
                             )}
                             {getEventsForDay(filteredEvents, day).map((event) => {
                               const isNotified = notifiedEvents.includes(event.id);
+                              const isRepeating = event.repeat.type !== 'none';
                               return (
                                 <Box
                                   key={event.id}
+                                  data-repeating={isRepeating}
                                   sx={{
                                     p: 0.5,
                                     my: 0.5,
-                                    backgroundColor: isNotified ? '#ffebee' : '#f5f5f5',
+                                    backgroundColor: isNotified
+                                      ? '#ffebee'
+                                      : isRepeating
+                                      ? '#e3f2fd'
+                                      : '#f5f5f5',
                                     borderRadius: 1,
                                     fontWeight: isNotified ? 'bold' : 'normal',
                                     color: isNotified ? '#d32f2f' : 'inherit',
                                     minHeight: '18px',
                                     width: '100%',
                                     overflow: 'hidden',
+                                    borderLeft: isRepeating ? '4px solid #1976d2' : 'none',
+                                    position: 'relative',
                                   }}
                                 >
                                   <Stack direction="row" spacing={1} alignItems="center">
                                     {isNotified && <Notifications fontSize="small" />}
+                                    {isRepeating && (
+                                      <Box
+                                        component="span"
+                                        sx={{
+                                          width: '8px',
+                                          height: '8px',
+                                          borderRadius: '50%',
+                                          backgroundColor: '#1976d2',
+                                          display: 'inline-block',
+                                          marginRight: '4px',
+                                        }}
+                                      />
+                                    )}
                                     <Typography
                                       variant="caption"
                                       noWrap
@@ -440,12 +482,14 @@ function App() {
           {isRepeating && (
             <Stack spacing={2}>
               <FormControl fullWidth>
-                <FormLabel>반복 유형</FormLabel>
+                <FormLabel htmlFor="repeat-type">반복 유형</FormLabel>
                 <Select
+                  id="repeat-type"
                   size="small"
-                  value={repeatType}
+                  value={isRepeating ? repeatType : 'none'}
                   onChange={(e) => setRepeatType(e.target.value as RepeatType)}
                 >
+                  <MenuItem value="none">없음</MenuItem>
                   <MenuItem value="daily">매일</MenuItem>
                   <MenuItem value="weekly">매주</MenuItem>
                   <MenuItem value="monthly">매월</MenuItem>
@@ -454,8 +498,9 @@ function App() {
               </FormControl>
               <Stack direction="row" spacing={2}>
                 <FormControl fullWidth>
-                  <FormLabel>반복 간격</FormLabel>
+                  <FormLabel htmlFor="repeat-interval">반복 간격</FormLabel>
                   <TextField
+                    id="repeat-interval"
                     size="small"
                     type="number"
                     value={repeatInterval}
