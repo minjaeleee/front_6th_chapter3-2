@@ -1,32 +1,35 @@
-import { Notifications, ChevronLeft, ChevronRight, Delete, Edit, Close } from '@mui/icons-material';
-import {
-  Alert,
-  AlertTitle,
-  Box,
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  IconButton,
-  MenuItem,
-  Select,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Close from '@mui/icons-material/Close';
+import Delete from '@mui/icons-material/Delete';
+import Edit from '@mui/icons-material/Edit';
+import Notifications from '@mui/icons-material/Notifications';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
@@ -194,8 +197,8 @@ function App() {
                               backgroundColor: isNotified
                                 ? '#ffebee'
                                 : isRepeating
-                                ? '#e3f2fd'
-                                : '#f5f5f5',
+                                  ? '#e3f2fd'
+                                  : '#f5f5f5',
                               borderRadius: 1,
                               fontWeight: isNotified ? 'bold' : 'normal',
                               color: isNotified ? '#d32f2f' : 'inherit',
@@ -302,8 +305,8 @@ function App() {
                                     backgroundColor: isNotified
                                       ? '#ffebee'
                                       : isRepeating
-                                      ? '#e3f2fd'
-                                      : '#f5f5f5',
+                                        ? '#e3f2fd'
+                                        : '#f5f5f5',
                                     borderRadius: 1,
                                     fontWeight: isNotified ? 'bold' : 'normal',
                                     color: isNotified ? '#d32f2f' : 'inherit',
