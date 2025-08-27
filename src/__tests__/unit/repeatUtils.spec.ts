@@ -1,29 +1,67 @@
-import {
-  generateDailyRecurring,
-  generateWeeklyRecurring,
-  generateMonthlyRecurring,
-  generateYearlyRecurring,
-} from '../../utils/repeatLogic';
+describe('반복 일정 생성', () => {
+  describe('none 타입', () => {
+    it('원본 이벤트만 반환한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'none' as const;
+      const interval = 1;
 
-describe('TDD - 반복 일정 로직', () => {
-  describe('매일 반복', () => {
-    it('매일 반복 시 연속된 날짜가 생성된다', () => {
-      const result = generateDailyRecurring('2025-01-15', '2025-01-18');
+      const result = generateRecurringEvents(startDate, repeatType, interval);
+
+      expect(result).toEqual([startDate]);
+    });
+  });
+
+  describe('daily 타입', () => {
+    it('매일 반복되는 일정을 생성한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'daily' as const;
+      const interval = 1;
+      const repeatEndDate = '2025-01-18';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
       expect(result).toEqual(['2025-01-15', '2025-01-16', '2025-01-17', '2025-01-18']);
     });
 
+    it('간격을 적용하여 반복한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'daily' as const;
+      const interval = 2; // 2일마다
+      const repeatEndDate = '2025-01-25';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
+
+      expect(result).toEqual([
+        '2025-01-15',
+        '2025-01-17',
+        '2025-01-19',
+        '2025-01-21',
+        '2025-01-23',
+        '2025-01-25',
+      ]);
+    });
+
     it('월말에서 다음 달로 넘어간다', () => {
-      const result = generateDailyRecurring('2025-01-30', '2025-02-02');
+      const startDate = '2025-01-30';
+      const repeatType = 'daily' as const;
+      const interval = 1;
+      const repeatEndDate = '2025-02-02';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
       expect(result).toEqual(['2025-01-30', '2025-01-31', '2025-02-01', '2025-02-02']);
     });
   });
 
-  describe('매주 반복', () => {
-    it('매주 반복 시 동일 요일에 생성된다', () => {
+  describe('weekly 타입', () => {
+    it('매주 같은 요일에 반복한다', () => {
       // 2025-01-06은 월요일
-      const result = generateWeeklyRecurring('2025-01-06', '2025-01-27');
+      const startDate = '2025-01-06';
+      const repeatType = 'weekly' as const;
+      const interval = 1;
+      const repeatEndDate = '2025-01-27';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
       expect(result).toEqual([
         '2025-01-06', // 월요일
@@ -33,22 +71,42 @@ describe('TDD - 반복 일정 로직', () => {
       ]);
     });
 
-    it('월경계를 넘나들며 매주 반복된다', () => {
-      // 2025-01-27은 월요일
-      const result = generateWeeklyRecurring('2025-01-27', '2025-02-17');
+    it('간격을 적용하여 반복한다', () => {
+      const startDate = '2025-01-06';
+      const repeatType = 'weekly' as const;
+      const interval = 2; // 2주마다
+      const repeatEndDate = '2025-02-17';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
       expect(result).toEqual([
-        '2025-01-27', // 월요일 (1월)
-        '2025-02-03', // 월요일 (2월)
-        '2025-02-10', // 월요일 (2월)
-        '2025-02-17', // 월요일 (2월)
+        '2025-01-06', // 월요일
+        '2025-01-20', // 월요일 (2주 후)
+        '2025-02-03', // 월요일 (4주 후)
+        '2025-02-17', // 월요일 (6주 후)
       ]);
     });
   });
 
-  describe('매월 반복 - 특수 규칙', () => {
-    it('31일 매월 반복: 31일 없는 달 건너뜀', () => {
-      const result = generateMonthlyRecurring('2025-01-31', '2025-05-31');
+  describe('monthly 타입', () => {
+    it('매월 같은 날짜에 반복한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'monthly' as const;
+      const interval = 1;
+      const repeatEndDate = '2025-04-15';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
+
+      expect(result).toEqual(['2025-01-15', '2025-02-15', '2025-03-15', '2025-04-15']);
+    });
+
+    it('31일 매월 반복 시 31일 없는 달은 건너뛴다', () => {
+      const startDate = '2025-01-31';
+      const repeatType = 'monthly' as const;
+      const interval = 1;
+      const repeatEndDate = '2025-05-31';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
       expect(result).toEqual([
         '2025-01-31', // 1월 31일
@@ -57,36 +115,37 @@ describe('TDD - 반복 일정 로직', () => {
       ]);
     });
 
-    it('30일 매월 반복: 2월만 건너뜀', () => {
-      const result = generateMonthlyRecurring('2025-01-30', '2025-04-30');
+    it('간격을 적용하여 반복한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'monthly' as const;
+      const interval = 2; // 2개월마다
+      const repeatEndDate = '2025-07-15';
 
-      expect(result).toEqual([
-        '2025-01-30', // 1월 30일
-        '2025-03-30', // 3월 30일 (2월 건너뜀)
-        '2025-04-30', // 4월 30일
-      ]);
-    });
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
-    it('일반 날짜 매월 반복: 모든 달 포함', () => {
-      const result = generateMonthlyRecurring('2025-01-15', '2025-04-15');
-
-      expect(result).toEqual(['2025-01-15', '2025-02-15', '2025-03-15', '2025-04-15']);
-    });
-
-    it('31일 매월 반복: 6월에서 9월로 (7,8월 31일 존재)', () => {
-      const result = generateMonthlyRecurring('2025-05-31', '2025-09-30');
-
-      expect(result).toEqual([
-        '2025-05-31', // 5월 31일
-        '2025-07-31', // 7월 31일 (6월 건너뜀)
-        '2025-08-31', // 8월 31일
-      ]);
+      expect(result).toEqual(['2025-01-15', '2025-03-15', '2025-05-15', '2025-07-15']);
     });
   });
 
-  describe('매년 반복 - 윤년 규칙', () => {
-    it('윤년 2월 29일: 평년 건너뜀', () => {
-      const result = generateYearlyRecurring('2024-02-29', '2028-02-29');
+  describe('yearly 타입', () => {
+    it('매년 같은 날짜에 반복한다', () => {
+      const startDate = '2024-01-15';
+      const repeatType = 'yearly' as const;
+      const interval = 1;
+      const repeatEndDate = '2026-01-15';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
+
+      expect(result).toEqual(['2024-01-15', '2025-01-15', '2026-01-15']);
+    });
+
+    it('윤년 2월 29일 반복 시 평년은 건너뛴다', () => {
+      const startDate = '2024-02-29';
+      const repeatType = 'yearly' as const;
+      const interval = 1;
+      const repeatEndDate = '2028-02-29';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
       expect(result).toEqual([
         '2024-02-29', // 윤년
@@ -94,31 +153,46 @@ describe('TDD - 반복 일정 로직', () => {
       ]);
     });
 
-    it('일반 날짜 매년 반복: 모든 해 포함', () => {
-      const result = generateYearlyRecurring('2024-01-15', '2026-01-15');
+    it('간격을 적용하여 반복한다', () => {
+      const startDate = '2024-01-15';
+      const repeatType = 'yearly' as const;
+      const interval = 2; // 2년마다
+      const repeatEndDate = '2030-01-15';
 
-      expect(result).toEqual(['2024-01-15', '2025-01-15', '2026-01-15']);
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
+
+      expect(result).toEqual(['2024-01-15', '2026-01-15', '2028-01-15', '2030-01-15']);
     });
+  });
 
-    it('평년 2월 28일 매년 반복: 모든 해 포함', () => {
-      const result = generateYearlyRecurring('2025-02-28', '2027-02-28');
+  describe('반복 종료일 처리', () => {
+    it('반복 종료일이 설정된 경우 해당 날짜까지만 반복한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'monthly' as const;
+      const interval = 1;
+      const repeatEndDate = '2025-06-15';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
 
       expect(result).toEqual([
-        '2025-02-28', // 평년
-        '2026-02-28', // 평년
-        '2027-02-28', // 평년
+        '2025-01-15',
+        '2025-02-15',
+        '2025-03-15',
+        '2025-04-15',
+        '2025-05-15',
+        '2025-06-15',
       ]);
     });
 
-    it('윤년 2월 29일 매년 반복: 2020-2032 범위', () => {
-      const result = generateYearlyRecurring('2020-02-29', '2032-02-29');
+    it('반복 종료일이 시작일보다 이전인 경우 시작일만 반환한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'monthly' as const;
+      const interval = 1;
+      const repeatEndDate = '2024-12-31';
 
-      expect(result).toEqual([
-        '2020-02-29', // 윤년
-        '2024-02-29', // 윤년
-        '2028-02-29', // 윤년
-        '2032-02-29', // 윤년 (2021,2022,2023,2025,2026,2027,2029,2030,2031 건너뜀)
-      ]);
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
+
+      expect(result).toEqual(['2025-01-15']);
     });
   });
 });
