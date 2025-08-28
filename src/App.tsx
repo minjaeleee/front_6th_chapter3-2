@@ -15,6 +15,8 @@ import {
   FormLabel,
   IconButton,
   MenuItem,
+  Radio,
+  RadioGroup,
   Select,
   Stack,
   Table,
@@ -81,6 +83,10 @@ function App() {
     setRepeatInterval,
     repeatEndDate,
     setRepeatEndDate,
+    repeatEndCondition,
+    setRepeatEndCondition,
+    repeatMaxOccurrences,
+    setRepeatMaxOccurrences,
     notificationTime,
     setNotificationTime,
     startTimeError,
@@ -518,6 +524,51 @@ function App() {
                   />
                 </FormControl>
               </Stack>
+
+              <FormControl fullWidth>
+                <FormLabel>반복 종료 조건</FormLabel>
+                <RadioGroup
+                  value={repeatEndCondition}
+                  onChange={(e) =>
+                    setRepeatEndCondition(e.target.value as 'default' | 'custom' | 'count')
+                  }
+                >
+                  <FormControlLabel
+                    value="default"
+                    control={<Radio />}
+                    label="기본 종료일 (2025-10-30)"
+                  />
+                  <FormControlLabel value="custom" control={<Radio />} label="사용자 지정 종료일" />
+                  <FormControlLabel value="count" control={<Radio />} label="특정 횟수만큼" />
+                </RadioGroup>
+              </FormControl>
+
+              {repeatEndCondition === 'custom' && (
+                <FormControl fullWidth>
+                  <FormLabel>사용자 지정 종료일</FormLabel>
+                  <TextField
+                    size="small"
+                    type="date"
+                    value={repeatEndDate}
+                    onChange={(e) => setRepeatEndDate(e.target.value)}
+                    helperText="종료일을 설정하지 않으면 기본 종료일(2025-10-30)이 적용됩니다"
+                  />
+                </FormControl>
+              )}
+
+              {repeatEndCondition === 'count' && (
+                <FormControl fullWidth>
+                  <FormLabel>반복 횟수</FormLabel>
+                  <TextField
+                    size="small"
+                    type="number"
+                    value={repeatMaxOccurrences}
+                    onChange={(e) => setRepeatMaxOccurrences(Number(e.target.value))}
+                    slotProps={{ htmlInput: { min: 1 } }}
+                    helperText="1 이상의 정수를 입력하세요"
+                  />
+                </FormControl>
+              )}
             </Stack>
           )}
 
