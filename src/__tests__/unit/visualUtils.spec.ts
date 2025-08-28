@@ -93,7 +93,7 @@ describe('시각적 구분 헬퍼 함수 TDD', () => {
   describe('getRepeatingIconStyle', () => {
     it('반복 일정 아이콘의 올바른 스타일을 반환한다', () => {
       const iconStyle = getRepeatingIconStyle();
-      
+
       expect(iconStyle.width).toBe('8px');
       expect(iconStyle.height).toBe('8px');
       expect(iconStyle.borderRadius).toBe('50%');
