@@ -2,12 +2,21 @@ export function generateRecurringEvents(
   startDate: string,
   repeatType: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly',
   interval: number,
-  repeatEndDate?: string
+  repeatEndDate?: string,
+  maxOccurrences?: number
 ): string[] {
   // none 타입인 경우 원본 이벤트만 반환
   if (repeatType === 'none') {
     return [startDate];
   }
+
+  // 반복 횟수가 0 이하인 경우 시작일만 반환
+  if (maxOccurrences !== undefined && maxOccurrences <= 0) {
+    return [startDate];
+  }
+
+  // 기본 종료일 설정 (2025-10-30)
+  const DEFAULT_END_DATE = '2025-10-30';
 
   // 반복 종료일이 시작일보다 이전인 경우 시작일만 반환
   if (repeatEndDate && new Date(repeatEndDate) < new Date(startDate)) {
@@ -16,7 +25,18 @@ export function generateRecurringEvents(
 
   const dates: string[] = [startDate];
   const start = new Date(startDate);
-  const end = repeatEndDate ? new Date(repeatEndDate) : new Date(startDate);
+
+  // 종료일 결정: 사용자 지정 종료일 > 기본 종료일 > 시작일
+  let end: Date;
+  if (repeatEndDate) {
+    end = new Date(repeatEndDate);
+  } else {
+    end = new Date(DEFAULT_END_DATE);
+    // 시작일이 기본 종료일 이후인 경우 시작일만 반환
+    if (start > end) {
+      return [startDate];
+    }
+  }
 
   // endDate가 startDate보다 이전이면 시작일만 반환
   if (end < start) {
@@ -32,6 +52,8 @@ export function generateRecurringEvents(
         nextDate.setDate(nextDate.getDate() + interval);
         // date를 기준으로 월을 넘어갔는지 체크
         if (nextDate > end) break;
+        // 반복 횟수 제한 체크
+        if (maxOccurrences !== undefined && dates.length >= maxOccurrences) break;
         dates.push(nextDate.toISOString().split('T')[0]);
         currentDate = nextDate;
       }
@@ -42,6 +64,8 @@ export function generateRecurringEvents(
         const nextDate = new Date(currentDate);
         nextDate.setDate(nextDate.getDate() + 7 * interval);
         if (nextDate > end) break;
+        // 반복 횟수 제한 체크
+        if (maxOccurrences !== undefined && dates.length >= maxOccurrences) break;
         dates.push(nextDate.toISOString().split('T')[0]);
         currentDate = nextDate;
       }
@@ -71,6 +95,8 @@ export function generateRecurringEvents(
         }
 
         if (nextMonth > end) break;
+        // 반복 횟수 제한 체크
+        if (maxOccurrences !== undefined && dates.length >= maxOccurrences) break;
         dates.push(nextMonth.toISOString().split('T')[0]);
         currentDate = nextMonth;
       }
@@ -97,6 +123,8 @@ export function generateRecurringEvents(
         }
 
         if (nextYear > end) break;
+        // 반복 횟수 제한 체크
+        if (maxOccurrences !== undefined && dates.length >= maxOccurrences) break;
         dates.push(nextYear.toISOString().split('T')[0]);
         currentDate = nextYear;
       }

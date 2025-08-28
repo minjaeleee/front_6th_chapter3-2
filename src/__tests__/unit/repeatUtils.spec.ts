@@ -197,4 +197,167 @@ describe('반복 일정 생성', () => {
       expect(result).toEqual(['2025-01-15']);
     });
   });
+
+  describe('기본 종료일 처리', () => {
+    it('종료일이 설정되지 않은 경우 2025-10-30까지 반복한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'monthly';
+      const interval = 1;
+
+      const result = generateRecurringEvents(startDate, repeatType, interval);
+
+      expect(result).toEqual([
+        '2025-01-15',
+        '2025-02-15',
+        '2025-03-15',
+        '2025-04-15',
+        '2025-05-15',
+        '2025-06-15',
+        '2025-07-15',
+        '2025-08-15',
+        '2025-09-15',
+        '2025-10-15',
+      ]);
+    });
+
+    it('시작일이 2025-10-30 이전인 경우 정상적으로 반복한다', () => {
+      const startDate = '2025-09-15';
+      const repeatType = 'weekly';
+      const interval = 1;
+
+      const result = generateRecurringEvents(startDate, repeatType, interval);
+
+      expect(result).toEqual([
+        '2025-09-15',
+        '2025-09-22',
+        '2025-09-29',
+        '2025-10-06',
+        '2025-10-13',
+        '2025-10-20',
+        '2025-10-27',
+      ]);
+    });
+
+    it('시작일이 2025-10-30 이후인 경우 시작일만 반환한다', () => {
+      const startDate = '2025-11-01';
+      const repeatType = 'weekly';
+      const interval = 1;
+
+      const result = generateRecurringEvents(startDate, repeatType, interval);
+
+      expect(result).toEqual(['2025-11-01']);
+    });
+  });
+
+  describe('반복 횟수 기반 종료', () => {
+    it('특정 횟수만큼만 반복한다 (예: 5회)', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'weekly';
+      const interval = 1;
+      const maxOccurrences = 5;
+
+      const result = generateRecurringEvents(
+        startDate,
+        repeatType,
+        interval,
+        undefined,
+        maxOccurrences
+      );
+
+      expect(result).toEqual([
+        '2025-01-15',
+        '2025-01-22',
+        '2025-01-29',
+        '2025-02-05',
+        '2025-02-12',
+      ]);
+    });
+
+    it('반복 횟수가 0이거나 음수인 경우 시작일만 반환한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'daily';
+      const interval = 1;
+
+      const resultZero = generateRecurringEvents(startDate, repeatType, interval, undefined, 0);
+      const resultNegative = generateRecurringEvents(
+        startDate,
+        repeatType,
+        interval,
+        undefined,
+        -1
+      );
+
+      expect(resultZero).toEqual(['2025-01-15']);
+      expect(resultNegative).toEqual(['2025-01-15']);
+    });
+  });
+
+  describe('복합 종료 조건', () => {
+    it('종료일과 반복 횟수가 모두 설정된 경우 더 먼저 도달하는 조건으로 종료한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'weekly';
+      const interval = 1;
+      const repeatEndDate = '2025-03-15';
+      const maxOccurrences = 10;
+
+      const result = generateRecurringEvents(
+        startDate,
+        repeatType,
+        interval,
+        repeatEndDate,
+        maxOccurrences
+      );
+
+      // 2025-01-15부터 2025-03-15까지는 약 8주, 하지만 10회 반복이 가능
+      // 더 먼저 도달하는 조건(종료일)으로 종료
+      expect(result).toEqual([
+        '2025-01-15',
+        '2025-01-22',
+        '2025-01-29',
+        '2025-02-05',
+        '2025-02-12',
+        '2025-02-19',
+        '2025-02-26',
+        '2025-03-05',
+        '2025-03-12',
+      ]);
+    });
+
+    it('반복 횟수가 설정되지 않은 경우 종료일까지만 반복한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'monthly';
+      const interval = 1;
+      const repeatEndDate = '2025-06-15';
+
+      const result = generateRecurringEvents(startDate, repeatType, interval, repeatEndDate);
+
+      expect(result).toEqual([
+        '2025-01-15',
+        '2025-02-15',
+        '2025-03-15',
+        '2025-04-15',
+        '2025-05-15',
+        '2025-06-15',
+      ]);
+    });
+
+    it('반복 횟수가 설정된 경우 종료일을 무시하고 횟수만큼 반환한다', () => {
+      const startDate = '2025-01-15';
+      const repeatType = 'weekly';
+      const interval = 1;
+      const repeatEndDate = '2025-12-31';
+      const maxOccurrences = 3;
+
+      const result = generateRecurringEvents(
+        startDate,
+        repeatType,
+        interval,
+        repeatEndDate,
+        maxOccurrences
+      );
+
+      // 종료일을 무시하고 3회만 반복
+      expect(result).toEqual(['2025-01-15', '2025-01-22', '2025-01-29']);
+    });
+  });
 });
